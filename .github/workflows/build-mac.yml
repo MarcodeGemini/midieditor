@@ -1,0 +1,25 @@
+name: Build macOS App
+
+on:
+  push:
+    branches: [ "*" ]
+  workflow_dispatch: # Allows you to trigger the build manually
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Qt 5
+        run: brew install qt@5
+
+      - name: Compile MidiEditor
+        run: |
+          # Add Qt to the system PATH so qmake is recognized
+          export PATH="$(brew --prefix qt@5)/bin:$PATH"
+          
+          # Run the existing build script
+          sh building/build-mac.sh
