@@ -21,15 +21,21 @@ jobs:
           export PATH="$(brew --prefix qt@5)/bin:$PATH"
           sh building/build-mac.sh
           
-      - name: Bundle Dependencies and Create DMG
+      - name: Bundle Dependencies, Sign, and Create DMG
         run: |
           export PATH="$(brew --prefix qt@5)/bin:$PATH"
-          # The -dmg flag creates a proper Mac disk image
-          macdeployqt MidiEditor.app -dmg
+          
+          # 1. Bundle all the Qt libraries into the app
+          macdeployqt MidiEditor.app
+          
+          # 2. Ad-hoc sign the app and all its contents so Apple Silicon accepts it
+          codesign --force --deep --sign - MidiEditor.app
+          
+          # 3. Create the DMG disk image manually
+          hdiutil create -volname "MidiEditor" -srcfolder MidiEditor.app -ov -format UDZO MidiEditor.dmg
           
       - name: Upload Packaged Mac App
         uses: actions/upload-artifact@v4
         with:
           name: MidiEditor-Mac-Installer
-          # Upload the DMG file instead of the raw folder
           path: MidiEditor.dmg
