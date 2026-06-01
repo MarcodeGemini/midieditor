@@ -18,10 +18,17 @@ jobs:
 
       - name: Compile MidiEditor
         run: |
+          # Link Qt to the path and run the existing build script
           export PATH="$(brew --prefix qt@5)/bin:$PATH"
           sh building/build-mac.sh
           
-      - name: Upload Mac App
+      - name: Bundle Dependencies (macdeployqt)
+        run: |
+          # Run the deployment tool on the freshly built app bundle
+          export PATH="$(brew --prefix qt@5)/bin:$PATH"
+          macdeployqt MidiEditor.app
+          
+      - name: Upload Packaged Mac App
         uses: actions/upload-artifact@v4
         with:
           name: MidiEditor-MacApp
